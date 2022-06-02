@@ -2,7 +2,6 @@ const create = document.getElementById("create");
 const clear = document.getElementById("clear");
 const color = document.getElementById("color");
 const colorBtn = document.querySelector(".options__color");
-const erase = document.getElementById("erase");
 const container = document.querySelector(".container");
 const allDivs = document.getElementsByClassName("cell");
 
@@ -11,9 +10,9 @@ let squares;
 let div;
 
 create.addEventListener("click", function () {
-  // if (container.firstChild) {
-  //   window.location.reload();
-  // }
+  if (container.firstChild) {
+    window.location.reload();
+  }
   while (valid) {
     squares = parseInt(
       prompt(`Enter the number of sqaures for the grid`, `Max is 100`)
@@ -48,21 +47,29 @@ clear.addEventListener("click", function () {
 });
 
 color.addEventListener("click", function () {
+  //When the color button is clicked after erasing a color
+  let btnLetters = "0123456789ABCDEF";
+  let btnColor = "#";
+
   //Get the the number of cells
   let lngth = allDivs.length;
+
+  //Change border color of the color button
+  for (let i = 0; i < 6; i++) {
+    btnColor += btnLetters[Math.floor(Math.random() * 16)];
+  }
+  //If no cells have been generated, don't color the border
+  if (lngth === 0) {
+    return;
+  } else {
+    colorBtn.setAttribute("style", `border:4px solid ${btnColor}`);
+  }
 
   //Give each cell an index
   for (let i = 0; i < lngth; i++) {
     allDivs[i].dataset.index = i;
   }
 
-  //Change border color of the color button
-  let btnLetters = "0123456789ABCDEF";
-  let btnColor = "#";
-  for (let i = 0; i < 6; i++) {
-    btnColor += btnLetters[Math.floor(Math.random() * 16)];
-  }
-  colorBtn.setAttribute("style", `border:4px solid ${btnColor}`);
   //Add a mouseover event listener to each div cell
   Array.from(allDivs).forEach((el) => {
     el.addEventListener("mouseover", function () {
@@ -74,19 +81,14 @@ color.addEventListener("click", function () {
         return;
       }
 
-      //Once a cell is colored, start adding shades of black
       if (
-        el.classList.contains("active") ||
-        (el.classList.contains("activated") &&
-          !el.classList.contains("completed"))
+        el.classList.contains("activated") &&
+        !el.classList.contains("completed")
       ) {
+        console.log(`Setting the bg for the shades`);
         console.log(el);
-        let col = window
-          .getComputedStyle(el)
-          .getPropertyValue("background-color");
 
         let opaque = window.getComputedStyle(el).getPropertyValue("opacity");
-        console.log(opaque, typeof opaque, col);
         if (opaque === String(1)) {
           el.style.backgroundColor = "black";
           el.style.opacity = 0.1;
@@ -119,21 +121,19 @@ color.addEventListener("click", function () {
           el.style.opacity = 1;
           el.classList.add("completed");
         }
-        el.classList.add("activated");
-        el.classList.remove("activate");
       }
-
-      //When the cell is colored add the 'active' class to the specific cell
-      if (el.classList.contains("activated")) {
-        el.classList.remove("active");
-      } else {
-        el.classList.add("active");
+      //If the cell is colored for the first time or is being colored after erasing
+      if (!el.classList.contains("activated")) {
+        //Add the color to the cell
         for (let i = 0; i < 6; i++) {
           color += letters[Math.floor(Math.random() * 16)];
         }
         //Set bg color
         el.style.backgroundColor = `${color}`;
         el.style.opacity = 1.0;
+        console.log(`Setting the bg for the first time`);
+        console.log(el);
+        el.classList.add("activated");
       }
     });
   });
